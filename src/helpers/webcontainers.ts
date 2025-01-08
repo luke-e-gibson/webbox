@@ -10,7 +10,7 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
     throw new Error("An error occurred: " + err);
   });
 
-  webcontainer.on("server-ready", (port, url) => {
+  webcontainer.on("server-ready", () => {
     console.log("Server is ready");
   });
 
@@ -38,7 +38,7 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
   return webcontainer;
 }
 
-export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string): void {
+export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string) {
   await webcontainer.fs.writeFile(filename, contents);
 }
 
