@@ -10,7 +10,7 @@ interface ServerConfig {
 const viteServerConfig = (): ServerConfig => ({
   name: "add-headers",
   configureServer: (server) => {
-    server.middlewares.use((req, res, next) => {
+    server.middlewares.use((_req, res, next) => {
       res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
       next();

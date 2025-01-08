@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WebContainer } from "@webcontainer/api";
 import { type Terminal } from '@xterm/xterm'
 
@@ -29,7 +29,12 @@ export default function App() {
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [isBrowserOpen, setIsBrowserOpen] = useState<boolean>(false);
 
-  const textEditorMemo = useMemo(()=>(<Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>), [file])
+  const editorFileChange = useCallback(async (value: string | undefined)=>{
+    if(!value) return;  
+    await writeFileToContainer(webcontainerInstance.current!, file.path, value);
+  }, [webcontainerInstance, file]);
+
+  const textEditorMemo = useMemo(()=>(<Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>), [file, editorFileChange])
 
   useEffect(() => {
     async function init() {
@@ -39,7 +44,7 @@ export default function App() {
       terminal.current = createTerminal(terminalDom.current!);
       webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
 
-      webcontainerInstance.current.on("server-ready", (port, url) => {
+      webcontainerInstance.current.on("server-ready", (_port, url) => {
         setCurrentUrl(url);
       })
     }
@@ -54,10 +59,6 @@ export default function App() {
     editorRef.current = editor;  
   }
 
-  async function editorFileChange(value: string | undefined) {
-    if(!value) return;  
-    await writeFileToContainer(webcontainerInstance.current!, file.path, value);
-  }
 
   async function handleFileChange(reqfile: string) {
     if(isBrowserOpen) setIsBrowserOpen(false);
