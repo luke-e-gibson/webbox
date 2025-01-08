@@ -6,7 +6,7 @@ export const Filesystem: FileSystemTree = {
       contents: `const express = require("express")
 
 const app = express()
-
+app.use(express.static('./'))
 app.get("/", (req, res)=> {
     res.send("Hello world")
 })
@@ -33,6 +33,28 @@ app.listen(8080, ()=> {
     "express": "^4.21.2"
   }
 }`,
+      }
+    },
+    "readme": {
+      file: {
+        contents: `A vscode like editor and terminal running a simple express server. Running completely in your browser using webcontainers https://webcontainers.io/.`,
+      }
+    },
+    "index.html": {
+      file: {
+        contents: `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web box</title>
+    <srcipt defr>
+        document.getElementById("location").innerText = window.location.href
+    </srcipt>
+  </head>
+    <body>
+      <h1>Hello world form wasm webcontainers</h1>
+      <p>Project running on <pre id="location"></pre></p>
+    </body>
+</html>`,
       }
     }
 }

@@ -1,6 +1,10 @@
 import { FileSystemTree, WebContainer } from "@webcontainer/api";
 import { Terminal } from "@xterm/xterm";
 
+import { Filesystem } from "../baseFilesystem";
+
+let ready = false;
+
 export async function createWebcontainer(filesystem: FileSystemTree, terminal: Terminal): Promise<WebContainer> {
   const webcontainer = await WebContainer.boot();
   webcontainer.mount(filesystem);
@@ -34,14 +38,17 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
     terminal.onData((data) => {
       input.write(data);
   })
-
+  ready = true;
   return webcontainer;
 }
 
 export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string) {
+  if(!ready) return
+  if(!Filesystem[filename]) console.log("File does not exist");
   await webcontainer.fs.writeFile(filename, contents);
 }
 
 export async function readFileFromContainer(webcontainer: WebContainer, filename: string): Promise<string> {
+  if(!ready) return '';
   return await webcontainer.fs.readFile(filename, "utf-8");
 }
