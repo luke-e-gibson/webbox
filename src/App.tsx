@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WebContainer } from "@webcontainer/api";
 import { type Terminal } from '@xterm/xterm'
 
@@ -11,26 +11,40 @@ import { createTerminal } from "./helpers/terminal";
 import { createWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
 import { File } from "./helpers/File";
 
+let webcontainerBooted = false
+
 export default function App() {
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const webcontainerInstance = useRef<WebContainer | null>(null);
   const terminalDom = useRef<HTMLPreElement>(null);
   const terminal = useRef<Terminal | null>(null);
 
-  const [file, setFile] = useState<File>({contents: Filesystem["readme"].file.contents, path: "readme", type: "text"});
+  const [file, setFile] = useState<File>({contents: Filesystem["readme"].file.contents as string, path: "readme", type: "text"});
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [isBrowserOpen, setIsBrowserOpen] = useState<boolean>(false);
 
-  async function editorDidMount(editor: editor.IStandaloneCodeEditor) {
-    editorRef.current = editor;
-    
-    console.log("Starting VM")
-    terminal.current = createTerminal(terminalDom.current!);
-    webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
 
-    webcontainerInstance.current.on("server-ready", (port, url) => {
-      setCurrentUrl(url);
-    })
+  useEffect(() => {
+    async function init() {
+      if(webcontainerBooted) return;
+      webcontainerBooted = true;
+      console.log("Starting VM")
+      terminal.current = createTerminal(terminalDom.current!);
+      webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
+
+      webcontainerInstance.current.on("server-ready", (port, url) => {
+        setCurrentUrl(url);
+      })
+    }
+    void init();
+    return () => {
+      
+    }
+  }, [terminalDom])
+
+
+  async function editorDidMount(editor: editor.IStandaloneCodeEditor) {
+    editorRef.current = editor;  
   }
 
   async function editorFileChange(value: string | undefined) {
@@ -39,6 +53,8 @@ export default function App() {
   }
 
   async function handleFileChange(reqfile: string) {
+    if(isBrowserOpen) setIsBrowserOpen(false);
+
     switch (reqfile.split('.').pop()) {
       case "js":
         void setFile({contents: await readFileFromContainer(webcontainerInstance.current!, reqfile), path: reqfile, type: "javascript"});
@@ -52,9 +68,6 @@ export default function App() {
       case "plaintext":
         void setFile({contents: await readFileFromContainer(webcontainerInstance.current!, reqfile), path: reqfile, type: "markdown"}); 
         break;
-      case "browser":
-        throw new Error("Not implemented");
-        break;
       default:
         void setFile({contents: await readFileFromContainer(webcontainerInstance.current!, reqfile), path: reqfile, type: reqfile.split('.').pop() as string}); 
         break;
@@ -64,7 +77,7 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div className="">
       <div className="">
         <div className="justify-between flex bg-background drop-shadow">
             <div className="flex justify-between">
@@ -78,8 +91,7 @@ export default function App() {
         </div>
       </div>
       {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> :  <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>}
-      <hr className="border border-line"/>
-      <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full" ref={terminalDom}>
+      <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full overflow-hidden border border-line" ref={terminalDom}>
           
       </pre>
     </div>

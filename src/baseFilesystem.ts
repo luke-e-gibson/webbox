@@ -1,6 +1,10 @@
-import { FileSystemTree } from "@webcontainer/api";
+import { FileNode } from "@webcontainer/api";
 
-export const Filesystem: FileSystemTree = {
+export type FileTree = {
+  [name: string]: FileNode;
+}
+
+export const Filesystem: FileTree = {
   "index.js": {
     file: {
       contents: `const express = require("express")
@@ -46,13 +50,13 @@ app.listen(8080, ()=> {
 <html>
   <head>
     <title>Web box</title>
-    <srcipt defr>
-        document.getElementById("location").innerText = window.location.href
-    </srcipt>
   </head>
     <body>
       <h1>Hello world form wasm webcontainers</h1>
       <p>Project running on <pre id="location"></pre></p>
+      <script>
+        document.getElementById("location").innerText = window.location.href
+      </script>
     </body>
 </html>`,
       }
