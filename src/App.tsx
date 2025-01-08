@@ -2,9 +2,9 @@ import { Editor } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
 import { useRef, useState } from "react";
 import { WebContainer } from "@webcontainer/api";
-import "@xterm/xterm/css/xterm.css"
 import { type Terminal } from '@xterm/xterm'
 
+import "@xterm/xterm/css/xterm.css"
 
 import { Filesystem } from "./baseFilesystem";
 import { createTerminal } from "./helpers/terminal";
@@ -77,7 +77,7 @@ export default function App() {
            </div>
         </div>
       </div>
-      {isBrowserOpen ? <iframe src={currentUrl} className="w-full h-screen"></iframe> :  <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>}
+      {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> :  <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>}
       <hr className="border border-line"/>
       <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full" ref={terminalDom}>
           
