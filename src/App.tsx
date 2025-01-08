@@ -82,8 +82,8 @@ export default function App() {
   }
 
   return (
-    <div className="">
-      <div className="">
+    <>
+      <div>
         <div className="justify-between flex bg-background drop-shadow-md">
             <div className="flex justify-between">
               {Object.keys(Filesystem).map((_file) => (
@@ -97,6 +97,6 @@ export default function App() {
       </div>
       {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> : textEditorMemo }
       <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full overflow-hidden border border-line" ref={terminalDom}></pre>
-    </div>
+    </>
   );
 }
