@@ -19,7 +19,7 @@ export default function App() {
 
   const [file, setFile] = useState<File>({contents: Filesystem["readme"].file.contents, path: "readme", type: "text"});
   const [currentUrl, setCurrentUrl] = useState<string>("");
-  
+  const [isBrowserOpen, setIsBrowserOpen] = useState<boolean>(false);
 
   async function editorDidMount(editor: editor.IStandaloneCodeEditor) {
     editorRef.current = editor;
@@ -73,11 +73,11 @@ export default function App() {
               ))}
             </div>
            <div className="px-2">
-            <button value="browser" className="w-fit p-2 text-slate-400 bg-tab text-text font-normal">Open Browser</button>
+            <button value="browser" className="w-fit p-2 text-slate-400 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>Open Browser</button>
            </div>
         </div>
       </div>
-      <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>
+      {isBrowserOpen ? <iframe src={currentUrl} className="w-full h-screen"></iframe> :  <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>}
       <hr className="border border-line"/>
       <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full" ref={terminalDom}>
           
