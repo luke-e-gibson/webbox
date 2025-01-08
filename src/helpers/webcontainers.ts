@@ -37,3 +37,11 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
 
   return webcontainer;
 }
+
+export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string): void {
+  await webcontainer.fs.writeFile(filename, contents);
+}
+
+export async function readFileFromContainer(webcontainer: WebContainer, filename: string): Promise<string> {
+  return await webcontainer.fs.readFile(filename, "utf-8");
+}
