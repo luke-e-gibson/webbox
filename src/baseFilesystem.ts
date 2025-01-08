@@ -52,7 +52,7 @@ app.listen(8080, ()=> {
     <title>Web box</title>
   </head>
     <body>
-      <h1>Hello world form wasm webcontainers</h1>
+      <h1>Hello world from wasm webcontainers</h1>
       <p>Project running on <pre id="location"></pre></p>
       <script>
         document.getElementById("location").innerText = window.location.href

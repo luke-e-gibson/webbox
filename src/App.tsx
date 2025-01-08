@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { WebContainer } from "@webcontainer/api";
 import { type Terminal } from '@xterm/xterm'
 
@@ -11,23 +11,30 @@ import { createTerminal } from "./helpers/terminal";
 import { createWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
 import { File } from "./helpers/File";
 
-let webcontainerBooted = false
+interface AppWindow extends Window {
+  webcontainerBooted: boolean;
+}
+
+const Appwindow = window as unknown as AppWindow;
+
+
 
 export default function App() {
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
-  const webcontainerInstance = useRef<WebContainer | null>(null);
+  const webcontainerInstance = useRef<WebContainer>();
   const terminalDom = useRef<HTMLPreElement>(null);
-  const terminal = useRef<Terminal | null>(null);
+  const terminal = useRef<Terminal>();
 
   const [file, setFile] = useState<File>({contents: Filesystem["readme"].file.contents as string, path: "readme", type: "text"});
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [isBrowserOpen, setIsBrowserOpen] = useState<boolean>(false);
 
+  const textEditorMemo = useMemo(()=>(<Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>), [file])
 
   useEffect(() => {
     async function init() {
-      if(webcontainerBooted) return;
-      webcontainerBooted = true;
+      if(Appwindow.webcontainerBooted) return;
+      Appwindow.webcontainerBooted = true;
       console.log("Starting VM")
       terminal.current = createTerminal(terminalDom.current!);
       webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
@@ -72,28 +79,24 @@ export default function App() {
         void setFile({contents: await readFileFromContainer(webcontainerInstance.current!, reqfile), path: reqfile, type: reqfile.split('.').pop() as string}); 
         break;
     }
-
-    console.log(reqfile)
   }
 
   return (
     <div className="">
       <div className="">
-        <div className="justify-between flex bg-background drop-shadow">
+        <div className="justify-between flex bg-background drop-shadow-md">
             <div className="flex justify-between">
               {Object.keys(Filesystem).map((_file) => (
                 <button key={_file} value={_file} className={`w-fit p-2 text-text font-normal ${ file.path === _file ? "bg-tabActive": "bg-tab border-l border-tabLine" }`} onClick={()=> {handleFileChange(_file)}}>{_file}</button>
               ))}
             </div>
            <div className="px-2">
-            <button value="browser" className="w-fit p-2 text-slate-400 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>Open Browser</button>
+            <button value="browser" className="w-fit p-2 text-slate-400 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>{isBrowserOpen ? "Close" : "Open"} Browser</button>
            </div>
         </div>
       </div>
-      {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> :  <Editor theme="vs-dark" height="67vh" value={file.contents} language={file.type} onChange={editorFileChange} onMount={editorDidMount}/>}
-      <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full overflow-hidden border border-line" ref={terminalDom}>
-          
-      </pre>
+      {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> : textEditorMemo }
+      <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full overflow-hidden border border-line" ref={terminalDom}></pre>
     </div>
   );
 }
