@@ -11,8 +11,9 @@ export const Filesystem: FileTree = {
 
 const app = express()
 app.use(express.static('./'))
-app.get("/", (req, res)=> {
-    res.send("Hello world")
+
+app.get("/hello", (req, res)=>{
+    res.send("Hello world from /hello")
 })
 
 app.listen(8080, ()=> {
@@ -54,6 +55,7 @@ app.listen(8080, ()=> {
     <body>
       <h1>Hello world from wasm webcontainers</h1>
       <p>Project running on <pre id="location"></pre></p>
+      <p>Go to <a href="/hello">/hello</a></p>
       <script>
         document.getElementById("location").innerText = window.location.href
       </script>
