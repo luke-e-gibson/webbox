@@ -27,7 +27,17 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'ESNext' //browsers can handle the latest ES features
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'monaco-editor': ['monaco-editor', '@monaco-editor/react'],
+          'xterm': ['@xterm/xterm', '@xterm/addon-fit'],
+          
+        },
+      }
+    },
+    cssMinify: "lightningcss",
+    //target: 'ESNext' //browsers can handle the latest ES features
   },
   plugins: [topLevelAwait() ,react(), viteServerConfig()],
 })

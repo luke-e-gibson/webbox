@@ -1,6 +1,5 @@
-import { Editor } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, lazy } from "react";
 import { WebContainer } from "@webcontainer/api";
 import { type Terminal } from '@xterm/xterm'
 
@@ -17,7 +16,7 @@ interface AppWindow extends Window {
 
 const Appwindow = window as unknown as AppWindow;
 
-
+const Editor = lazy(() => import("@monaco-editor/react"));
 
 export default function App() {
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
@@ -40,6 +39,7 @@ export default function App() {
     async function init() {
       if(Appwindow.webcontainerBooted) return;
       Appwindow.webcontainerBooted = true;
+      
       console.log("Starting VM")
       terminal.current = createTerminal(terminalDom.current!);
       webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
