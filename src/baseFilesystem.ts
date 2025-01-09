@@ -73,7 +73,9 @@ Express docs: https://expressjs.com/
     res.send(req.body)
 })" when some one does a http post to the location /pathname the will get back the body they sent. "res.send()" sends text or other data to the requester. "req.body" is a constent witch has the requests body
 
-`,
+Limitation:
+    1. The editor can only edit files on root dir
+    2. Base enviroment only supports node.`,
       }
     },
     "index.html": {
