@@ -7,7 +7,7 @@ import "@xterm/xterm/css/xterm.css"
 
 import { Filesystem } from "./baseFilesystem";
 import { createTerminal } from "./helpers/terminal";
-import { createWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
+import { createWebcontainer, exportWebcontainer, importWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
 import { File } from "./helpers/File";
 import { Browser } from "./browser";
 import { AppWindow } from "./interfaces";
@@ -89,8 +89,11 @@ export default function App() {
                 <button key={_file} value={_file} className={`w-fit p-2 text-text font-normal ${ file.path === _file ? "bg-tabActive": "bg-tab border-l border-tabLine" }`} onClick={()=> {handleFileChange(_file)}}>{_file}</button>
               ))}
             </div>
-           <div className="px-2">
-            <button value="browser" className="w-fit p-2 text-slate-400 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>{isBrowserOpen ? "Close" : "Open"} Browser</button>
+           <div className="px-2 justify-between">
+            <button value="browser" className="w-fit p-2 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>{isBrowserOpen ? "Close" : "Open"} Browser</button>
+            <button value="download" className="w-fit p-2 bg-tab text-text font-normal" onClick={async ()=>{await exportWebcontainer(webcontainerInstance.current!)}}>Download Devbox</button> 
+            <button value="load" className="w-fit p-2 bg-tab text-text font-normal" onClick={async ()=>{await importWebcontainer(webcontainerInstance.current!)}}>Load Devbox</button> 
+            
            </div>
         </div>
       </div>

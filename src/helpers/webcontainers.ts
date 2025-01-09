@@ -42,6 +42,44 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
   return webcontainer;
 }
 
+export async function exportWebcontainer(webcontainer: WebContainer) {
+  if(!ready) return;
+  const filesystem = await webcontainer.export(".", { excludes: ["node_modules"], format: "json" });
+  
+  const donwnloadLink = document.createElement("a")
+  donwnloadLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(filesystem)));
+  donwnloadLink.setAttribute('download', `box.boxfs`);
+
+  donwnloadLink.style.display = 'none';
+  document.body.appendChild(donwnloadLink);
+
+  donwnloadLink.click();
+
+  document.body.removeChild(donwnloadLink);
+}
+
+export async function importWebcontainer(webcontainer: WebContainer) {
+  const uploadElement = document.createElement("input");
+  uploadElement.type = "file";
+  uploadElement.accept = ".boxfs";
+
+  uploadElement.onchange = async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const contents = e.target?.result as string;
+      await webcontainer.mount(JSON.parse(contents));
+      document.body.removeChild(uploadElement);
+    }
+    reader.readAsText(file);
+  }
+  uploadElement.style.display = 'none';
+  document.body.appendChild(uploadElement);
+  uploadElement.click();
+}
+
 export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string) {
   if(!ready) return
   if(!Filesystem[filename]) console.log("File does not exist");
