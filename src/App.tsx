@@ -72,7 +72,7 @@ export default function App() {
       terminal.current = createTerminal(terminalDom.current!);
       webcontainerInstance.current = await createWebcontainer(
         Filesystem,
-        terminal.current!
+        terminal.current!,
       );
 
       webcontainerInstance.current.on("server-ready", (_port, url) => {

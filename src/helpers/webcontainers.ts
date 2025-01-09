@@ -5,10 +5,13 @@ import { Filesystem, FileTree } from "../baseFilesystem";
 
 let ready = false;
 
+const delay = (delayInms: number) => {
+  return new Promise(resolve => setTimeout(resolve, delayInms));
+};
+
+
 export async function createWebcontainer(
-  filesystem: FileSystemTree,
-  terminal: Terminal
-): Promise<WebContainer> {
+filesystem: FileSystemTree, terminal: Terminal): Promise<WebContainer> {
   const webcontainer = await WebContainer.boot();
   webcontainer.mount(filesystem);
 
@@ -25,10 +28,17 @@ export async function createWebcontainer(
     console.log("Preview message: ", message);
   });
 
+  webcontainer.fs.watch(".", {encoding: "utf-8", recursive: true}, (event, filename) => {
+    console.log("File change detected: ", event, filename);
+  })
+
   console.log("Installing Dependencies...");
   void terminal.writeln("Installing dependencies using pnpm...");
-  await webcontainer.spawn("pnpm", ["install"]);
+  await webcontainer.spawn("pnpm", ["install"])
   void terminal.writeln("");
+
+  //Allow deps to install
+  await delay(3000);
 
   console.log("Starting Shell...");
   void terminal.writeln("Starting shell...");
