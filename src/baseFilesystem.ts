@@ -51,31 +51,17 @@ app.listen(8080, ()=> {
 Get Started:
     1. Run the server type "npm run dev" then you can click "Open Browser" and see a hello world example page.
     2. Now you can click on index.html to what every you want and see it update when you switch back to the browser.
-    3. Edit the index.js express server to what ever you want
+    3. Edit the index.js express server to what ever you want. express docs: https://expressjs.com/
+
 
 Saving and loading Devboxs:
     To save your work you can press "Download Devbox" and that will download a box.boxfs file witch you can load by at any time by pressing Load devbox button.
     Loading a boxfs file will over ride any work you have.
 
-
-Basic Expressjs functions:
-
-Express docs: https://expressjs.com/
-
-"const express = require("express)" This import express
-"const app = expres()" this creates an express app
-
-"app.get('/pathnane', (req, res) => {
-    res.send('This is a test')
-})" when some one go to the servers location /pathname the will get "This is a test sent back". "res.send()" sends text or other data the requester
-
-"app.post('/pathnane', (req, res) => {
-    res.send(req.body)
-})" when some one does a http post to the location /pathname the will get back the body they sent. "res.send()" sends text or other data to the requester. "req.body" is a constent witch has the requests body
-
 Limitation:
     1. The editor can only edit files on root dir
-    2. Base enviroment only supports node.`,
+    2. Base enviroment only supports node.
+    3. Can not use devbox url outside of site`,
       }
     },
     "index.html": {
