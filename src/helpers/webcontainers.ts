@@ -1,7 +1,7 @@
 import { FileSystemTree, WebContainer } from "@webcontainer/api";
 import { Terminal } from "@xterm/xterm";
 
-import { Filesystem } from "../baseFilesystem";
+import { Filesystem, FileTree } from "../baseFilesystem";
 
 let ready = false;
 
@@ -17,6 +17,10 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
   webcontainer.on("server-ready", () => {
     console.log("Server is ready");
   });
+
+  webcontainer.on("preview-message", (message) => {
+    console.log("Preview message: ", message);
+  })
 
   console.log("Installing Dependencies...");
   void terminal.writeln("Installing dependencies using pnpm...")
@@ -58,7 +62,9 @@ export async function exportWebcontainer(webcontainer: WebContainer) {
   document.body.removeChild(donwnloadLink);
 }
 
-export async function importWebcontainer(webcontainer: WebContainer) {
+export async function importWebcontainer(webcontainer: WebContainer, setFilesystem: (filesystem: FileTree) => void) {
+  if(confirm("This will overwrite the current filesystem. Are you sure you want to continue?") !== true) return;
+
   const uploadElement = document.createElement("input");
   uploadElement.type = "file";
   uploadElement.accept = ".boxfs";
@@ -70,6 +76,7 @@ export async function importWebcontainer(webcontainer: WebContainer) {
     const reader = new FileReader();
     reader.onload = async (e) => {
       const contents = e.target?.result as string;
+      setFilesystem(JSON.parse(contents));
       await webcontainer.mount(JSON.parse(contents));
       document.body.removeChild(uploadElement);
     }

@@ -5,7 +5,7 @@ import { type Terminal } from '@xterm/xterm'
 
 import "@xterm/xterm/css/xterm.css"
 
-import { Filesystem } from "./baseFilesystem";
+import { Filesystem, FileTree } from "./baseFilesystem";
 import { createTerminal } from "./helpers/terminal";
 import { createWebcontainer, exportWebcontainer, importWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
 import { File } from "./helpers/File";
@@ -22,6 +22,7 @@ export default function App() {
   const terminalDom = useRef<HTMLPreElement>(null);
   const terminal = useRef<Terminal>();
 
+  const [filesystem, setFilesystem] = useState<FileTree>(Filesystem);
   const [file, setFile] = useState<File>({contents: Filesystem["readme"].file.contents as string, path: "readme", type: "text"});
   const [currentUrl, setCurrentUrl] = useState<string>("");
   const [isBrowserOpen, setIsBrowserOpen] = useState<boolean>(false);
@@ -85,14 +86,14 @@ export default function App() {
       <div>
         <div className="justify-between flex bg-background drop-shadow-md">
             <div className="flex justify-between">
-              {Object.keys(Filesystem).map((_file) => (
+              {Object.keys(filesystem).map((_file) => (
                 <button key={_file} value={_file} className={`w-fit p-2 text-text font-normal ${ file.path === _file ? "bg-tabActive": "bg-tab border-l border-tabLine" }`} onClick={()=> {handleFileChange(_file)}}>{_file}</button>
               ))}
             </div>
            <div className="px-2 justify-between">
             <button value="browser" className="w-fit p-2 bg-tab text-text font-normal" onClick={()=>{setIsBrowserOpen(!isBrowserOpen)}}>{isBrowserOpen ? "Close" : "Open"} Browser</button>
             <button value="download" className="w-fit p-2 bg-tab text-text font-normal" onClick={async ()=>{await exportWebcontainer(webcontainerInstance.current!)}}>Download Devbox</button> 
-            <button value="load" className="w-fit p-2 bg-tab text-text font-normal" onClick={async ()=>{await importWebcontainer(webcontainerInstance.current!)}}>Load Devbox</button> 
+            <button value="load" className="w-fit p-2 bg-tab text-text font-normal" onClick={async ()=>{await importWebcontainer(webcontainerInstance.current!, setFilesystem as (filesystem: FileTree) => void); handleFileChange(file.path)}}>Load Devbox</button> 
             
            </div>
         </div>
