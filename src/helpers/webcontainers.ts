@@ -5,7 +5,10 @@ import { Filesystem, FileTree } from "../baseFilesystem";
 
 let ready = false;
 
-export async function createWebcontainer(filesystem: FileSystemTree, terminal: Terminal): Promise<WebContainer> {
+export async function createWebcontainer(
+  filesystem: FileSystemTree,
+  terminal: Terminal
+): Promise<WebContainer> {
   const webcontainer = await WebContainer.boot();
   webcontainer.mount(filesystem);
 
@@ -20,15 +23,15 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
 
   webcontainer.on("preview-message", (message) => {
     console.log("Preview message: ", message);
-  })
+  });
 
   console.log("Installing Dependencies...");
-  void terminal.writeln("Installing dependencies using pnpm...")
-  await webcontainer.spawn("pnpm", ["install"])
-  void terminal.writeln("")
+  void terminal.writeln("Installing dependencies using pnpm...");
+  await webcontainer.spawn("pnpm", ["install"]);
+  void terminal.writeln("");
 
   console.log("Starting Shell...");
-  void terminal.writeln("Starting shell...")
+  void terminal.writeln("Starting shell...");
   const shell = await webcontainer.spawn("jsh");
   shell.output.pipeTo(
     new WritableStream({
@@ -39,22 +42,29 @@ export async function createWebcontainer(filesystem: FileSystemTree, terminal: T
   );
 
   const input = shell.input.getWriter();
-    terminal.onData((data) => {
-      input.write(data);
-  })
+  terminal.onData((data) => {
+    input.write(data);
+  });
   ready = true;
   return webcontainer;
 }
 
 export async function exportWebcontainer(webcontainer: WebContainer) {
-  if(!ready) return;
-  const filesystem = await webcontainer.export(".", { excludes: ["node_modules"], format: "json" });
-  
-  const donwnloadLink = document.createElement("a")
-  donwnloadLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(filesystem)));
-  donwnloadLink.setAttribute('download', `box.boxfs`);
+  if (!ready) return;
+  const filesystem = await webcontainer.export(".", {
+    excludes: ["node_modules"],
+    format: "json",
+  });
 
-  donwnloadLink.style.display = 'none';
+  const donwnloadLink = document.createElement("a");
+  donwnloadLink.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(filesystem))
+  );
+  donwnloadLink.setAttribute("download", `box.boxfs`);
+
+  donwnloadLink.style.display = "none";
   document.body.appendChild(donwnloadLink);
 
   donwnloadLink.click();
@@ -62,8 +72,16 @@ export async function exportWebcontainer(webcontainer: WebContainer) {
   document.body.removeChild(donwnloadLink);
 }
 
-export async function importWebcontainer(webcontainer: WebContainer, setFilesystem: (filesystem: FileTree) => void) {
-  if(confirm("This will overwrite the current filesystem. Are you sure you want to continue?") !== true) return;
+export async function importWebcontainer(
+  webcontainer: WebContainer,
+  setFilesystem: (filesystem: FileTree) => void
+) {
+  if (
+    confirm(
+      "This will overwrite the current filesystem. Are you sure you want to continue?"
+    ) !== true
+  )
+    return;
 
   const uploadElement = document.createElement("input");
   uploadElement.type = "file";
@@ -71,7 +89,7 @@ export async function importWebcontainer(webcontainer: WebContainer, setFilesyst
 
   uploadElement.onchange = async (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if(!file) return;
+    if (!file) return;
 
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -79,21 +97,28 @@ export async function importWebcontainer(webcontainer: WebContainer, setFilesyst
       setFilesystem(JSON.parse(contents));
       await webcontainer.mount(JSON.parse(contents));
       document.body.removeChild(uploadElement);
-    }
+    };
     reader.readAsText(file);
-  }
-  uploadElement.style.display = 'none';
+  };
+  uploadElement.style.display = "none";
   document.body.appendChild(uploadElement);
   uploadElement.click();
 }
 
-export async function writeFileToContainer(webcontainer: WebContainer, filename: string, contents: string) {
-  if(!ready) return
-  if(!Filesystem[filename]) console.log("File does not exist");
+export async function writeFileToContainer(
+  webcontainer: WebContainer,
+  filename: string,
+  contents: string
+) {
+  if (!ready) return;
+  if (!Filesystem[filename]) console.log("File does not exist");
   await webcontainer.fs.writeFile(filename, contents);
 }
 
-export async function readFileFromContainer(webcontainer: WebContainer, filename: string): Promise<string> {
-  if(!ready) return '';
+export async function readFileFromContainer(
+  webcontainer: WebContainer,
+  filename: string
+): Promise<string> {
+  if (!ready) return "";
   return await webcontainer.fs.readFile(filename, "utf-8");
 }
