@@ -29,20 +29,51 @@ app.listen(8080, ()=> {
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }`,
       }
     },
     "readme": {
       file: {
-        contents: `A vscode like editor and terminal running a simple express server. Running completely in your browser using webcontainers https://webcontainers.io/.`,
+        contents: `Run nodejs in your browser with a vscode like editor. Running completely in your browser using webcontainers https://webcontainers.io/.
+
+Get Started:
+    1. Run the server type "npm run dev" then you can click "Open Browser" and see a hello world example page.
+    2. Now you can click on index.html to what every you want and see it update when you switch back to the browser.
+    3. Edit the index.js express server to what ever you want
+
+Saving and loading Devboxs:
+    To save your work you can press "Download Devbox" and that will download a box.boxfs file witch you can load by at any time by pressing Load devbox button.
+    Loading a boxfs file will over ride any work you have.
+
+
+Basic Expressjs functions:
+
+Express docs: https://expressjs.com/
+
+"const express = require("express)" This import express
+"const app = expres()" this creates an express app
+
+"app.get('/pathnane', (req, res) => {
+    res.send('This is a test')
+})" when some one go to the servers location /pathname the will get "This is a test sent back". "res.send()" sends text or other data the requester
+
+"app.post('/pathnane', (req, res) => {
+    res.send(req.body)
+})" when some one does a http post to the location /pathname the will get back the body they sent. "res.send()" sends text or other data to the requester. "req.body" is a constent witch has the requests body
+
+`,
       }
     },
     "index.html": {
