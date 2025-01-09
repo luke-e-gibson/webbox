@@ -9,10 +9,8 @@ import { Filesystem } from "./baseFilesystem";
 import { createTerminal } from "./helpers/terminal";
 import { createWebcontainer, readFileFromContainer, writeFileToContainer } from "./helpers/webcontainers";
 import { File } from "./helpers/File";
-
-interface AppWindow extends Window {
-  webcontainerBooted: boolean;
-}
+import { Browser } from "./browser";
+import { AppWindow } from "./interfaces";
 
 const Appwindow = window as unknown as AppWindow;
 
@@ -39,7 +37,7 @@ export default function App() {
     async function init() {
       if(Appwindow.webcontainerBooted) return;
       Appwindow.webcontainerBooted = true;
-      
+
       console.log("Starting VM")
       terminal.current = createTerminal(terminalDom.current!);
       webcontainerInstance.current = await createWebcontainer(Filesystem, terminal.current!)
@@ -96,7 +94,7 @@ export default function App() {
            </div>
         </div>
       </div>
-      {isBrowserOpen ? <iframe src={currentUrl} style={{height: "67vh"}} className="w-full"></iframe> : textEditorMemo }
+      {isBrowserOpen ? <Browser url={currentUrl}/> : textEditorMemo }
       <pre id="console" style={{height: "30vh", background: "#1e1e1e"}} className="bg-black w-full overflow-hidden border border-line" ref={terminalDom}></pre>
     </>
   );
